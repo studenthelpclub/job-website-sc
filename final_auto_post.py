@@ -272,7 +272,7 @@ def run_automation():
             
             print("✅ Firebase Upload Successful!")
             
-            post_url = f"https://jobs.studenthelpclub.in/post.html?col={col}&amp;slug={slug}"
+            post_url = f"https://jobs.studenthelpclub.in/post.html?col={col}&slug={slug}"
             safe_title = urllib.parse.quote(title)
             safe_url = urllib.parse.quote(post_url)
             final_trigger_url = f"{GOOGLE_SERVER_URL}?title={safe_title}&url={safe_url}"
@@ -376,7 +376,7 @@ def generate_sitemap(db):
             data = doc.to_dict()
             slug = data.get('slug')
             if slug:
-                post_url = f"https://jobs.studenthelpclub.in/post.html?col={col}&slug={slug}"
+                post_url = f"https://jobs.studenthelpclub.in/post.html?col={col}&amp;slug={slug}"
                 sitemap_content += f"""
 <url>
   <loc>{post_url}</loc>
