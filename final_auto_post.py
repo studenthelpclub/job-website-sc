@@ -8,6 +8,32 @@ import urllib.parse
 import time
 from google.oauth2 import service_account
 from google.auth.transport import Request
+def notify_google_indexing(url):
+    SCOPES = ["https://www.googleapis.com/auth/indexing"]
+    ENDPOINT = "https://indexing.googleapis.com/v3/urlNotifications:publish"
+    try:
+        creds = service_account.Credentials.from_service_account_file(
+            'indexingKey.json', scopes=SCOPES
+        )
+        auth_req = Request()
+        creds.refresh(auth_req)
+        
+        headers = {
+            "Authorization": f"Bearer {creds.token}",
+            "Content-Type": "application/json"
+        }
+        body = {
+            "url": url,
+            "type": "URL_UPDATED"
+        }
+        
+        response = requests.post(ENDPOINT, headers=headers, json=body)
+        if response.status_code == 200:
+            print(f"🚀 Google Instant Indexing Success: {url}")
+        else:
+            print(f"⚠️ Indexing API Response: {response.status_code} - {response.text}")
+    except Exception as e:
+        print(f"❌ Indexing API Error: {e}")
 
 # --- 1. FIREBASE SETUP ---
 try:
@@ -284,7 +310,9 @@ def run_automation():
                 print(f"📢 Telegram / WhatsApp Message Bhej diya gaya! (Status: {trig_resp.status_code})")
             except Exception as e:
                 print("⚠️ Telegram trigger fail hua:", e)
-                
+            # Firebase upload aur Telegram ke turant baad yahan call karein 👇
+            notify_google_indexing(post_url)
+            
             valid_links_processed += 1
             time.sleep(3) 
             
