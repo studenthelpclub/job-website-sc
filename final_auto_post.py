@@ -6,6 +6,8 @@ from google.cloud.firestore_v1.base_query import FieldFilter
 import re
 import urllib.parse
 import time
+from google.oauth2 import service_account
+from google.auth.transport import Request
 
 # --- 1. FIREBASE SETUP ---
 try:
