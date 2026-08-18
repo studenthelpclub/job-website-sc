@@ -1,0 +1,22 @@
+name: SHC Auto Scraper
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Yeh har 1 ghante (jaise 1:00, 2:00, 3:00) mein automatically chalega
+  workflow_dispatch: # Isse aap jab chahein manually bhi button dabakar chala sakte hain
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Create Firebase JSON
+        run: echo '${{ secrets.FIREBASE_JSON }}' > serviceAccountKey.json
+      - name: Run Scraper
+        run: python final_auto_post.py
