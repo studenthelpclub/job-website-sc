@@ -15,7 +15,7 @@ def notify_google_indexing(url):
         creds = service_account.Credentials.from_service_account_file(
             'indexingKey.json', scopes=SCOPES
         )
-        auth_req = Request()
+        auth_req = google.auth.transport.requests.Request()
         creds.refresh(auth_req)
         
         headers = {
