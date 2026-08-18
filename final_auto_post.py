@@ -300,7 +300,7 @@ def run_automation():
             
             print("✅ Firebase Upload Successful!")
             
-            post_url = f"https://jobs.studenthelpclub.in/post.html?col={col}&slug={slug}"
+            post_url = f"https://jobs.studenthelpclub.in/post.html?col={cat['collection']}&slug={slug}"
             safe_title = urllib.parse.quote(title)
             safe_url = urllib.parse.quote(post_url)
             final_trigger_url = f"{GOOGLE_SERVER_URL}?title={safe_title}&url={safe_url}"
