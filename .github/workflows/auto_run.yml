@@ -33,7 +33,7 @@ jobs:
       - name: Checkout Website Repo
         uses: actions/checkout@v4
         with:
-          repository: 'studenthelpclub/AAPKI_WEBSITE_REPO_KA_NAAM' # 👈 Yahan apni website wali repo ka asli naam likhein
+          repository: 'studenthelpclub/job.studenthelpclub.github.io' # 👈 Yahan apni website wali repo ka asli naam likhein
           token: ${{ secrets.WEBSITE_PAT }}
           path: 'website-repo' # Ise aise hi rehne dein
 
