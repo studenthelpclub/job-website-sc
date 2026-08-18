@@ -25,6 +25,10 @@ jobs:
       - name: Create Firebase JSON
         run: echo '${{ secrets.FIREBASE_JSON }}' > serviceAccountKey.json
 
+      # 👇 Yeh naya step jodein
+      - name: Create Indexing JSON
+        run: echo '${{ secrets.INDEXING_JSON }}' > indexingKey.json
+
       # 3. Script Run karein (Sitemap yahin banega)
       - name: Run Scraper & Generate Sitemap
         run: python final_auto_post.py
