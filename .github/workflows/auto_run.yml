@@ -1,22 +1,49 @@
-name: SHC Auto Scraper
+name: SHC Auto Scraper & Sitemap Updater
 
 on:
   schedule:
-    - cron: '0 * * * *' # Yeh har 1 ghante (jaise 1:00, 2:00, 3:00) mein automatically chalega
-  workflow_dispatch: # Isse aap jab chahein manually bhi button dabakar chala sakte hain
+    - cron: '0 * * * *'
+  workflow_dispatch: 
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # 1. Apni Scraper wali repo load karein
+      - name: Checkout Scraper Repo
+        uses: actions/checkout@v4
+
+      # 2. Python Setup aur Dependencies
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          
       - name: Install dependencies
         run: pip install -r requirements.txt
+        
       - name: Create Firebase JSON
         run: echo '${{ secrets.FIREBASE_JSON }}' > serviceAccountKey.json
-      - name: Run Scraper
+
+      # 3. Script Run karein (Sitemap yahin banega)
+      - name: Run Scraper & Generate Sitemap
         run: python final_auto_post.py
+
+      # 4. Website wali Repo ko access karein (PAT ka use karke)
+      - name: Checkout Website Repo
+        uses: actions/checkout@v4
+        with:
+          repository: 'studenthelpclub/AAPKI_WEBSITE_REPO_KA_NAAM' # 👈 Yahan apni website wali repo ka asli naam likhein
+          token: ${{ secrets.WEBSITE_PAT }}
+          path: 'website-repo' # Ise aise hi rehne dein
+
+      # 5. Naye Sitemap ko Website repo mein copy karke Push karein
+      - name: Push Sitemap to Website Repo
+        run: |
+          cp sitemap.xml website-repo/sitemap.xml
+          cd website-repo
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add sitemap.xml
+          git commit -m "SEO Update: Auto-generated dynamic sitemap.xml" || echo "No changes to commit"
+          git push
