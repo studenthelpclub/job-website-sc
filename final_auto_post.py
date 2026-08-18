@@ -290,12 +290,14 @@ def run_automation():
             print(f"⚠️ {cat['label']} mein ek bhi valid link nahi mili. Shayad saare links kachra the (Filter ho gaye) ya dabba khali tha.")
 
     print("\n🎉 MASTER AUTOMATION COMPLETELY FINISHED! Aapka portal ab puri tarah auto-update ho gaya hai.")
+    
+    # SITEMAP FUNCTION KO YAHAN CALL KARNA HAI 👇
+    generate_sitemap(db)
 
-if __name__ == "__main__":
-    import datetime
 
 # --- 7. AUTOMATIC SITEMAP GENERATOR ---
 def generate_sitemap(db):
+    import datetime
     print("⏳ Generating Sitemap...")
     
     # Aapka original static sitemap template
@@ -389,4 +391,8 @@ def generate_sitemap(db):
         file.write(sitemap_content)
     
     print("✅ Sitemap automatically generated as sitemap.xml!")
+
+
+# SCRIPT START HONE KA ASLI POINT YAHAN HAI 👇
+if __name__ == "__main__":
     run_automation()
