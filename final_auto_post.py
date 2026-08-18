@@ -292,4 +292,101 @@ def run_automation():
     print("\n🎉 MASTER AUTOMATION COMPLETELY FINISHED! Aapka portal ab puri tarah auto-update ho gaya hai.")
 
 if __name__ == "__main__":
+    import datetime
+
+# --- 7. AUTOMATIC SITEMAP GENERATOR ---
+def generate_sitemap(db):
+    print("⏳ Generating Sitemap...")
+    
+    # Aapka original static sitemap template
+    sitemap_content = """<?xml version="1.0" encoding="UTF-8"?>
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<!-- created with Free Online Sitemap Generator www.xml-sitemaps.com -->
+
+<url>
+  <loc>https://jobs.studenthelpclub.in/</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/index.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/jobs.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/admit-cards.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/results.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/yojna.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/scholarship.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/about.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/contact.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/privacy-policy.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://jobs.studenthelpclub.in/disclaimer.html</loc>
+  <lastmod>2026-04-24T16:18:41+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+"""
+
+    today_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S+00:00")
+    collections = ['jobs', 'admit', 'result']
+    
+    # Firebase se dynamic posts uthana
+    for col in collections:
+        docs = db.collection(col).stream()
+        for doc in docs:
+            data = doc.to_dict()
+            slug = data.get('slug')
+            if slug:
+                post_url = f"https://jobs.studenthelpclub.in/post.html?col={col}&slug={slug}"
+                sitemap_content += f"""
+<url>
+  <loc>{post_url}</loc>
+  <lastmod>{today_date}</lastmod>
+  <priority>0.80</priority>
+</url>"""
+
+    sitemap_content += "\n</urlset>"
+
+    # XML File ko save karna
+    with open("sitemap.xml", "w", encoding="utf-8") as file:
+        file.write(sitemap_content)
+    
+    print("✅ Sitemap automatically generated as sitemap.xml!")
     run_automation()
