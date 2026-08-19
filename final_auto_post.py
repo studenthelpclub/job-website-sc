@@ -90,13 +90,11 @@ def scrape_inner_details(job_url):
             if not details["How_To_Apply"] and "important date" not in cell_text and "application fee" not in cell_text:
                 lis = cell.find_all('li')
                 if lis:
-                    # Yahan instruction ke text ko fix kiya gaya hai
                     details["How_To_Apply"] = [li.get_text(separator=" ", strip=True).replace('Sarkari Result', 'Student Help Club').replace('sarkariresult.com', 'studenthelpclub.in') for li in lis if li.get_text(strip=True)]
 
     for li in soup.find_all('li'):
         li_text = li.get_text(separator=" ", strip=True)
         li_text = re.sub(r'\s+', ' ', li_text) 
-        # Yahan FAQ ke text ko fix kiya gaya hai
         li_text = li_text.replace('Sarkari Result', 'Student Help Club').replace('sarkariresult.com', 'studenthelpclub.in')
         
         if li_text.lower().startswith('question:') or li_text.lower().startswith('answer:'):
@@ -109,28 +107,29 @@ def scrape_inner_details(job_url):
             href = link_tag.get('href')
             href_lower = href.lower()
             
+            # 👇 MASTER FAKE LINK CHECKER 👇
+            is_fake_link = False
+            # 1. Agar whatsapp ya telegram chipkaya hai
+            if 'whatsapp' in href_lower or 'telegram' in href_lower or 't.me' in href_lower:
+                is_fake_link = True
+            # 2. Agar sarkariresult ka link hai aur usme pdf/jpg nahi hai (yani doosri post par ghumaya hai)
+            elif 'sarkariresult' in href_lower and not any(ext in href_lower for ext in ['.pdf', '.jpg', '.jpeg', 'uploads', 'file']):
+                is_fake_link = True
+
+            # Asli link set karo
+            final_link = MY_WHATSAPP_LINK if is_fake_link else href
+
+            # Ab sahi button mein sahi link daalo
             if 'apply' in tr_text or 'registration' in tr_text:
-                # FAKE APPLY ONLINE LINK FIX
-                if 'whatsapp' in href_lower or 'telegram' in href_lower or 't.me' in href_lower or 'sarkariresult' in href_lower:
-                    details["Important_Links"]["Apply Online"] = MY_WHATSAPP_LINK
-                else:
-                    details["Important_Links"]["Apply Online"] = href
-                    
+                details["Important_Links"]["Apply Online"] = final_link
             elif 'download result' in tr_text or 'result' in tr_text:
-                details["Important_Links"]["Download Result"] = href
-                
+                details["Important_Links"]["Download Result"] = final_link
             elif 'download admit card' in tr_text or 'admit card' in tr_text:
-                details["Important_Links"]["Download Admit Card"] = href
-                
+                details["Important_Links"]["Download Admit Card"] = final_link
             elif 'notification' in tr_text:
-                # FAKE NOTIFICATION LINK FIX
-                if 'sarkariresult' in href_lower:
-                    if not any(ext in href_lower for ext in ['.pdf', '.jpg', '.jpeg', 'uploads', 'file']):
-                        href = MY_WHATSAPP_LINK
-                details["Important_Links"]["Download Notification"] = href
-                
+                details["Important_Links"]["Download Notification"] = final_link
             elif 'official website' in tr_text:
-                details["Important_Links"]["Official Website"] = href
+                details["Important_Links"]["Official Website"] = href # Official website hamesha real rahegi
                 
     return details
 
