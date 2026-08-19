@@ -288,9 +288,12 @@ def run_automation():
                 print("❌ Data nikalne mein error aayi.")
                 continue
                 
-            print("✅ HTML ban raha hai (Premium SEO Blocks ke sath)...")
+           print("✅ HTML ban raha hai (Premium SEO Blocks ke sath)...")
             final_html = generate_seo_html(title, inner_data, cat["label"])
-            
+
+            # 👇 YEH NAYI LINE YAHAN ADD KARNI HAI 👇
+            final_html = final_html.replace('sarkariresult.com.cm', 'studenthelpclub.in').replace('Sarkari Result', 'Student Help Club')
+
             print(f"☁️ Firebase ({cat['collection']}) mein upload ho raha hai...")
             db.collection(cat["collection"]).add({
                 'title': title,
