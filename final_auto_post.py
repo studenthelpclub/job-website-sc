@@ -294,28 +294,48 @@ def run_automation():
             soup = BeautifulSoup(final_html, 'html.parser')
             current_category = cat["label"].lower() 
 
-            # 1. Sirf 'Download Result' box ko Job aur Admit Card se hata dein
-            for tr in soup.find_all('tr'):
-                if 'download result' in tr.get_text().lower():
-                    if 'result' not in current_category:
-                        tr.decompose() 
+            # 👇 APNE ASLI WHATSAPP AUR TELEGRAM LINKS YAHAN DAALEIN 👇
+            MY_WHATSAPP_LINK = "https://whatsapp.com/channel/0029VbCJ2xI7IUYa1zMB6n1f"
+            MY_TELEGRAM_LINK = "https://t.me/studenthelpclub"
 
-            # 2. Sirf dikhne wale text mein naam badlega
+            # 1. Sirf Dikhne Wale Text ko theek karega (Links ko nahi chherega)
             for element in soup.find_all(string=True):
                 if 'Sarkari Result' in element:
                     element.replace_with(element.replace('Sarkari Result', 'Student Help Club'))
                 elif 'sarkariresult.com' in element:
                     element.replace_with(element.replace('sarkariresult.com', 'studenthelpclub.in'))
 
-            # 👇 3. NAYA CODE: Links ko fix karega 👇
-            for a_tag in soup.find_all('a', href=True):
-                # Agar link ke andar sarkariresult ka domain hai, toh usko aapke slug link mein badal dega
-                if 'sarkariresult' in a_tag['href'].lower():
-                    a_tag['href'] = f"https://jobs.studenthelpclub.in/post.html?col={cat['collection']}&slug={slug}"
-            # 👆 NAYA CODE YAHAN KHATAM 👆
+            # 2. Table ki saari lines aur Links filter karega
+            for tr in soup.find_all('tr'):
+                row_text = tr.get_text().lower()
+        
+                # A. 'Download Result' sirf Result page par dikhega
+                if 'download result' in row_text and 'result' not in current_category:
+                    tr.decompose()
+                    continue
+            
+                # B. Links (href) ki Asli Checking
+                for a_tag in tr.find_all('a', href=True):
+                    href = a_tag['href'].lower()
+            
+                    # 🛑 APPLY ONLINE FIX: Agar Apply ke button mein unhone WhatsApp/Telegram daala hai, toh apna WhatsApp link lagao
+                    if 'apply' in row_text and ('whatsapp' in href or 'telegram' in href or 't.me' in href):
+                        a_tag['href'] = MY_WHATSAPP_LINK
+                
+                    # 🛑 SOCIAL LINKS FIX: Unke Join buttons ko apne links se replace kar do
+                    elif 'whatsapp' in row_text and 'join' in row_text:
+                        a_tag['href'] = MY_WHATSAPP_LINK
+                    elif 'telegram' in row_text and 'join' in row_text:
+                        a_tag['href'] = MY_TELEGRAM_LINK
+                    
+                    # 🛑 SARKARI RESULT LINKS FIX: Notification ki PDF hai toh thik, warna Apna WhatsApp link daal do!
+                    elif 'sarkariresult' in href:
+                        if '.pdf' in href or '.jpg' in href or '.jpeg' in href or 'uploads' in href or 'file' in href:
+                            pass # 🟢 Asli Notification PDF/Image hai, isko aise hi chhod do!
+                        else:
+                            a_tag['href'] = MY_WHATSAPP_LINK # 🔴 Faltu post link ki jagah ab aapka WhatsApp khulega!
 
             final_html = str(soup)
-
             print(f"☁️ Firebase ({cat['collection']}) mein upload ho raha hai...")
             db.collection(cat["collection"]).add({
                 'title': title,
