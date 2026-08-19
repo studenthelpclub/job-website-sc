@@ -292,7 +292,7 @@ def run_automation():
             final_html = generate_seo_html(title, inner_data, cat["label"])
 
             # 👇 YEH NAYI LINE YAHAN ADD KARNI HAI 👇
-            final_html = final_html.replace('sarkariresult.com.cm', 'studenthelpclub.in').replace('Sarkari Result', 'Student Help Club')
+            final_html = final_html.replace('sarkariresult.com.cm', 'jobs.studenthelpclub.in').replace('Sarkari Result', 'Student Help Club')
 
             print(f"☁️ Firebase ({cat['collection']}) mein upload ho raha hai...")
             db.collection(cat["collection"]).add({
