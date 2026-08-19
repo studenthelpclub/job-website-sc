@@ -288,7 +288,7 @@ def run_automation():
                 print("❌ Data nikalne mein error aayi.")
                 continue
                 
-           print("✅ HTML ban raha hai (Premium SEO Blocks ke sath)...")
+            print("✅ HTML ban raha hai (Premium SEO Blocks ke sath)...")
             final_html = generate_seo_html(title, inner_data, cat["label"])
 
             # 👇 YEH NAYI LINE YAHAN ADD KARNI HAI 👇
