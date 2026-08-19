@@ -193,8 +193,8 @@ def generate_seo_html(title, inner_data, category_label):
         link_rows += f'<tr><td style="padding: 12px;"><b>{link_name}</b></td><td style="padding: 12px;"><a href="{link_url}" target="_blank" style="font-weight:bold;">Click Here</a></td></tr>'
         
     # YAHAN AAPKE FIXED LINKS AAYENGE (Yeh bilkul safe hain, kabhi nahi gayab honge!)
-    link_rows += '<tr><td style="padding: 12px;">Image Resizer (Reduce KB size)</td><td style="padding: 12px;"><a href="https://studenthelpclub.in/tools" target="_blank" style="color:#e67e22; font-weight:bold;">Use Tool</a></td></tr>'
-    link_rows += '<tr><td style="padding: 12px;">Age Calculator (As on Date)</td><td style="padding: 12px;"><a href="https://studenthelpclub.in/tools" target="_blank" style="color:#e67e22; font-weight:bold;">Use Tool</a></td></tr>'
+    link_rows += '<tr><td style="padding: 12px;">Image Resizer (Reduce KB size)</td><td style="padding: 12px;"><a href="https://shctools.in/image-resize.html" target="_blank" style="color:#e67e22; font-weight:bold;">Use Tool</a></td></tr>'
+    link_rows += '<tr><td style="padding: 12px;">Age Calculator (As on Date)</td><td style="padding: 12px;"><a href="https://shctools.in/age-calculator.html" target="_blank" style="color:#e67e22; font-weight:bold;">Use Tool</a></td></tr>'
     link_rows += '<tr><td style="padding: 12px;">Join Telegram Group</td><td style="padding: 12px;"><a href="https://t.me/studenthelpclub" target="_blank" style="color:#0088cc; font-weight:bold;">Join Now</a></td></tr>'
     link_rows += '<tr><td style="padding: 12px;">Join WhatsApp Channel</td><td style="padding: 12px;"><a href="https://whatsapp.com/channel/0029VbCJ2xI7IUYa1zMB6n1f" target="_blank" style="color:#25d366; font-weight:bold;">Join Now</a></td></tr>'
 
