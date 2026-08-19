@@ -291,9 +291,7 @@ def run_automation():
             print("✅ HTML ban raha hai (Premium SEO Blocks ke sath)...")
             final_html = generate_seo_html(title, inner_data, cat["label"])
 
-            # 👇 BAS JITNA BOLA, UTNA HI CODE YAHAN ADD KAREIN 👇
             soup = BeautifulSoup(final_html, 'html.parser')
-    
             current_category = cat["label"].lower() 
 
             # 1. Sirf 'Download Result' box ko Job aur Admit Card se hata dein
@@ -302,15 +300,21 @@ def run_automation():
                     if 'result' not in current_category:
                         tr.decompose() 
 
-            # 2. Sirf dikhne wale text mein naam badlega, Links (href) bilkul original rahenge!
+            # 2. Sirf dikhne wale text mein naam badlega
             for element in soup.find_all(string=True):
                 if 'Sarkari Result' in element:
                     element.replace_with(element.replace('Sarkari Result', 'Student Help Club'))
                 elif 'sarkariresult.com' in element:
                     element.replace_with(element.replace('sarkariresult.com', 'studenthelpclub.in'))
 
+            # 👇 3. NAYA CODE: Links ko fix karega 👇
+            for a_tag in soup.find_all('a', href=True):
+                # Agar link ke andar sarkariresult ka domain hai, toh usko aapke slug link mein badal dega
+                if 'sarkariresult' in a_tag['href'].lower():
+                    a_tag['href'] = f"https://jobs.studenthelpclub.in/post.html?col={cat['collection']}&slug={slug}"
+            # 👆 NAYA CODE YAHAN KHATAM 👆
+
             final_html = str(soup)
-            # 👆 CODE YAHAN KHATAM 👆
 
             print(f"☁️ Firebase ({cat['collection']}) mein upload ho raha hai...")
             db.collection(cat["collection"]).add({
