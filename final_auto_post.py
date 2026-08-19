@@ -107,19 +107,27 @@ def scrape_inner_details(job_url):
             href = link_tag.get('href')
             href_lower = href.lower()
             
-            # 👇 MASTER FAKE LINK CHECKER 👇
+            # 👇 EXTREME MASTER FAKE LINK CHECKER 👇
             is_fake_link = False
+            
             # 1. Agar whatsapp ya telegram chipkaya hai
             if 'whatsapp' in href_lower or 'telegram' in href_lower or 't.me' in href_lower:
                 is_fake_link = True
-            # 2. Agar sarkariresult ka link hai aur usme pdf/jpg nahi hai (yani doosri post par ghumaya hai)
-            elif 'sarkariresult' in href_lower and not any(ext in href_lower for ext in ['.pdf', '.jpg', '.jpeg', 'uploads', 'file']):
-                is_fake_link = True
+                
+            # 2. Agar inka internal chhota link (/) ya sarkariresult domain hai
+            elif 'sarkariresult' in href_lower or href_lower.startswith('/'):
+                # Toh check karo ki asli PDF/Image hai ya nahi?
+                if not any(ext in href_lower for ext in ['.pdf', '.jpg', '.jpeg', '.png', 'uploads', 'file']):
+                    is_fake_link = True # Asli file nahi hai toh Fake Mark kar do!
 
-            # Asli link set karo
+            # Sahi link set karo (Agar official external link hoga toh usko touch bhi nahi karega)
             final_link = MY_WHATSAPP_LINK if is_fake_link else href
 
-            # Ab sahi button mein sahi link daalo
+            # Agar unhone original PDF ka chhota link (relative url) diya hai, toh usko poora theek kar do
+            if final_link.startswith('/'):
+                final_link = "https://sarkariresult.com.cm" + final_link
+
+            # Ab sahi button mein ekdum pakka link daalo
             if 'apply' in tr_text or 'registration' in tr_text:
                 details["Important_Links"]["Apply Online"] = final_link
             elif 'download result' in tr_text or 'result' in tr_text:
@@ -129,7 +137,7 @@ def scrape_inner_details(job_url):
             elif 'notification' in tr_text:
                 details["Important_Links"]["Download Notification"] = final_link
             elif 'official website' in tr_text:
-                details["Important_Links"]["Official Website"] = href # Official website hamesha real rahegi
+                details["Important_Links"]["Official Website"] = href # Official website hamesha un-touched rahegi
                 
     return details
 
