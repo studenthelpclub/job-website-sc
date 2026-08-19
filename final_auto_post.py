@@ -69,6 +69,9 @@ def scrape_inner_details(job_url):
         "FAQs": [], 
         "Important_Links": {}
     }
+
+    # Aapka WhatsApp Link (Fake Links ki jagah yahi jayega)
+    MY_WHATSAPP_LINK = "https://whatsapp.com/channel/0029VbCJ2xI7IUYa1zMB6n1f"
     
     for cell in soup.find_all(['td', 'div']):
         cell_text = cell.get_text(separator=" ", strip=True).lower()
@@ -87,11 +90,14 @@ def scrape_inner_details(job_url):
             if not details["How_To_Apply"] and "important date" not in cell_text and "application fee" not in cell_text:
                 lis = cell.find_all('li')
                 if lis:
-                    details["How_To_Apply"] = [li.get_text(separator=" ", strip=True) for li in lis if li.get_text(strip=True)]
+                    # Yahan instruction ke text ko fix kiya gaya hai
+                    details["How_To_Apply"] = [li.get_text(separator=" ", strip=True).replace('Sarkari Result', 'Student Help Club').replace('sarkariresult.com', 'studenthelpclub.in') for li in lis if li.get_text(strip=True)]
 
     for li in soup.find_all('li'):
         li_text = li.get_text(separator=" ", strip=True)
         li_text = re.sub(r'\s+', ' ', li_text) 
+        # Yahan FAQ ke text ko fix kiya gaya hai
+        li_text = li_text.replace('Sarkari Result', 'Student Help Club').replace('sarkariresult.com', 'studenthelpclub.in')
         
         if li_text.lower().startswith('question:') or li_text.lower().startswith('answer:'):
             details["FAQs"].append(li_text)
@@ -101,41 +107,34 @@ def scrape_inner_details(job_url):
         link_tag = tr.find('a')
         if link_tag and link_tag.get('href'):
             href = link_tag.get('href')
+            href_lower = href.lower()
+            
             if 'apply' in tr_text or 'registration' in tr_text:
-                details["Important_Links"]["Apply Online"] = href
+                # FAKE APPLY ONLINE LINK FIX
+                if 'whatsapp' in href_lower or 'telegram' in href_lower or 't.me' in href_lower or 'sarkariresult' in href_lower:
+                    details["Important_Links"]["Apply Online"] = MY_WHATSAPP_LINK
+                else:
+                    details["Important_Links"]["Apply Online"] = href
+                    
             elif 'download result' in tr_text or 'result' in tr_text:
                 details["Important_Links"]["Download Result"] = href
+                
             elif 'download admit card' in tr_text or 'admit card' in tr_text:
                 details["Important_Links"]["Download Admit Card"] = href
+                
             elif 'notification' in tr_text:
+                # FAKE NOTIFICATION LINK FIX
+                if 'sarkariresult' in href_lower:
+                    if not any(ext in href_lower for ext in ['.pdf', '.jpg', '.jpeg', 'uploads', 'file']):
+                        href = MY_WHATSAPP_LINK
                 details["Important_Links"]["Download Notification"] = href
+                
             elif 'official website' in tr_text:
                 details["Important_Links"]["Official Website"] = href
                 
     return details
 
-# --- 3. HUMAN-LIKE HEADING FINDER ---
-def get_correct_container(soup, category_headings):
-    for ch in category_headings:
-        headings = soup.find_all(string=lambda t: t and t.strip().lower() == ch)
-        if not headings:
-            headings = soup.find_all(string=lambda t: t and ch in t.lower() and len(t.strip()) < 20)
-
-        for h in headings:
-            if h.find_parent('a') or h.find_parent('footer') or h.find_parent(id=lambda x: x and 'footer' in x.lower()) or h.find_parent(['script', 'style', 'title']):
-                continue
-                
-            parent = h.parent
-            while parent and parent.name not in ['body', 'html']:
-                links = parent.find_all('a')
-                # 🛑 FIX: Yahan 80 ki jagah 250 kar diya hai taaki Admit Card skip na ho
-                if 3 < len(links) < 250:
-                    return parent
-                parent = parent.parent
-                
-    return None
-
-# --- 4. PREMIUM SEO HTML GENERATOR ---
+# --- 3. PREMIUM SEO HTML GENERATOR ---
 def generate_seo_html(title, inner_data, category_label):
     html = f"""
     <div class="seo-content" style="padding: 18px; background: #f0f8ff; border-left: 5px solid #2980b9; margin-bottom: 25px; border-radius: 0 8px 8px 0; text-align: justify;">
@@ -193,8 +192,7 @@ def generate_seo_html(title, inner_data, category_label):
     for link_name, link_url in inner_data["Important_Links"].items():
         link_rows += f'<tr><td style="padding: 12px;"><b>{link_name}</b></td><td style="padding: 12px;"><a href="{link_url}" target="_blank" style="font-weight:bold;">Click Here</a></td></tr>'
         
-    # 🛑 YAHAN AAPKE FIXED LINKS HAI (YE KABHI GAYAB NAHI HONGE) 🛑
-    # 👉 NOTE: "YOUR_IMAGE_RESIZER_URL" aur "YOUR_AGE_CALCULATOR_URL" ko apni original tools ki link se replace kar dena!
+    # YAHAN AAPKE FIXED LINKS AAYENGE (Yeh bilkul safe hain, kabhi nahi gayab honge!)
     link_rows += '<tr><td style="padding: 12px;">Image Resizer (Reduce KB size)</td><td style="padding: 12px;"><a href="https://studenthelpclub.in/tools" target="_blank" style="color:#e67e22; font-weight:bold;">Use Tool</a></td></tr>'
     link_rows += '<tr><td style="padding: 12px;">Age Calculator (As on Date)</td><td style="padding: 12px;"><a href="https://studenthelpclub.in/tools" target="_blank" style="color:#e67e22; font-weight:bold;">Use Tool</a></td></tr>'
     link_rows += '<tr><td style="padding: 12px;">Join Telegram Group</td><td style="padding: 12px;"><a href="https://t.me/studenthelpclub" target="_blank" style="color:#0088cc; font-weight:bold;">Join Now</a></td></tr>'
@@ -204,6 +202,30 @@ def generate_seo_html(title, inner_data, category_label):
     
     return html
 
+# --- 4. HUMAN-LIKE HEADING FINDER (NO IDs USED) ---
+def get_correct_container(soup, category_headings):
+    for ch in category_headings:
+        # Pura exact match check karo pehle
+        headings = soup.find_all(string=lambda t: t and t.strip().lower() == ch)
+        
+        # Agar exact match nahi mila toh partial match
+        if not headings:
+            headings = soup.find_all(string=lambda t: t and ch in t.lower() and len(t.strip()) < 20)
+
+        for h in headings:
+            # Agar heading kisi link me hai ya footer tag me hai toh use turant ignore maro
+            if h.find_parent('a') or h.find_parent('footer') or h.find_parent(id=lambda x: x and 'footer' in x.lower()) or h.find_parent(['script', 'style', 'title']):
+                continue
+                
+            parent = h.parent
+            while parent and parent.name not in ['body', 'html']:
+                links = parent.find_all('a')
+                # 🛑 FIX: 80 ko 250 kiya gaya taaki Admit Card/Result ka dabba skip na ho 🛑
+                if 3 < len(links) < 250:
+                    return parent
+                parent = parent.parent
+                
+    return None
 
 # --- 5. MASTER AUTOMATION ---
 def run_automation():
@@ -218,6 +240,7 @@ def run_automation():
         print("❌ Website load nahi hui:", e)
         return
 
+    # Ab ID ki zaroorat nahi hai, script strictly headings padhegi
     categories = [
         {"headings": ["latest jobs", "latest job"], "collection": "jobs", "label": "Latest Job"},
         {"headings": ["admit card", "admit cards"], "collection": "admit", "label": "Admit Card"},
@@ -289,44 +312,15 @@ def run_automation():
                 print("❌ Data nikalne mein error aayi.")
                 continue
 
-            # -------------------------------------------------------------
-            # 👇 YAHAN SE AAPKI STRICT LINK FILTERING SHURU HOTA HAI 👇
-            # -------------------------------------------------------------
-            MY_WHATSAPP_LINK = "https://whatsapp.com/channel/0029VbCJ2xI7IUYa1zMB6n1f"
+            # 🛑 FILTER: Result ki category ke alawa kahin bhi "Download Result" hoga toh uda dega
             current_category = cat["label"].lower()
-            
-            # Download Result box sirf Result page par bachega
             if 'result' not in current_category:
                 if "Download Result" in inner_data["Important_Links"]:
                     del inner_data["Important_Links"]["Download Result"]
-
-            for key, href in inner_data["Important_Links"].items():
-                href_lower = href.lower()
-                
-                # Agar "Apply Online" mein inhone fake link dala hai
-                if key == "Apply Online":
-                    if 'whatsapp' in href_lower or 'telegram' in href_lower or 't.me' in href_lower or 'sarkariresult' in href_lower:
-                        inner_data["Important_Links"][key] = MY_WHATSAPP_LINK
-                        
-                # Agar "Download Notification" mein PDF ke alawa dusri link daali hai
-                elif key == "Download Notification":
-                    if 'sarkariresult' in href_lower:
-                        if not any(ext in href_lower for ext in ['.pdf', '.jpg', '.jpeg', 'uploads', 'file']):
-                            inner_data["Important_Links"][key] = MY_WHATSAPP_LINK
-            # -------------------------------------------------------------
                 
             print("✅ HTML ban raha hai (Premium SEO Blocks ke sath)...")
             final_html = generate_seo_html(title, inner_data, cat["label"])
-
-            # Sirf Page ke text ko "Student Help Club" me badlo (Links ko touch bhi nahi karega)
-            soup = BeautifulSoup(final_html, 'html.parser')
-            for element in soup.find_all(string=True):
-                if 'Sarkari Result' in element:
-                    element.replace_with(element.replace('Sarkari Result', 'Student Help Club'))
-                elif 'sarkariresult.com' in element:
-                    element.replace_with(element.replace('sarkariresult.com', 'studenthelpclub.in'))
-            final_html = str(soup)
-
+            
             print(f"☁️ Firebase ({cat['collection']}) mein upload ho raha hai...")
             db.collection(cat["collection"]).add({
                 'title': title,
@@ -368,6 +362,7 @@ def generate_sitemap(db):
     import datetime
     print("⏳ Generating Sitemap...")
     
+    # Aapka original static sitemap template
     sitemap_content = """<?xml version="1.0" encoding="UTF-8"?>
 <urlset
       xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -436,6 +431,7 @@ def generate_sitemap(db):
     today_date = datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S+00:00")
     collections = ['jobs', 'admit', 'result']
     
+    # Firebase se dynamic posts uthana
     for col in collections:
         docs = db.collection(col).stream()
         for doc in docs:
@@ -452,11 +448,14 @@ def generate_sitemap(db):
 
     sitemap_content += "\n</urlset>"
 
+    # XML File ko save karna
     with open("sitemap.xml", "w", encoding="utf-8") as file:
         file.write(sitemap_content)
     
     print("✅ Sitemap automatically generated as sitemap.xml!")
 
 
+# SCRIPT START HONE KA ASLI POINT YAHAN HAI 👇
 if __name__ == "__main__":
     run_automation()
+    
