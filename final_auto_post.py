@@ -47,7 +47,7 @@ except Exception as e:
     print("❌ Firebase Error:", e)
     exit()
 
-GOOGLE_SERVER_URL = "https://script.google.com/macros/s/AKfycbyo025_xgev4ItpdWA6VaycY4nBPLXvPro97qjhJd4U0kFSv5CmqPks64hz96mCxIsk/exec"
+GOOGLE_SERVER_URL = "https://script.google.com/macros/s/BKfycbyo025_xgev4ItpdWA6VaycY4nBPLXvPro97qjhJd4U0kFSv5CmqPks64hz96mCxIsk/exec"
 
 def create_slug(title):
     slug = re.sub(r'[^a-z0-9]+', '-', title.lower())
